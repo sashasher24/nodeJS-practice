@@ -1,12 +1,13 @@
 import express from 'express'
-import fs from "fs";
+import fs from 'fs';
+import morgan from 'morgan'
 
 
 const PORT = 8080;
-
 const app = express()
-app.use(express.json())
 
+app.use(express.json())
+app.use(morgan('combined'))
 // app.post('/', (request, response) => {
 //     //FOR APP.GET
 //     // console.log(request.query)
@@ -34,12 +35,16 @@ app.post('/files', (req, res) => {
         if (!checkExtension(req.body.filename)) {
             throw new Error("Incorrect extension!")
         }
+        if(fs.existsSync(`api/files/${req.body.filename}`)) {
+            throw new Error("File already exists!:(")
+        }
         console.log(req.body)
 
         // if(checkExtension(req.body.filename)) console.log('correct extension')
         // else console.log('wrong extension')
 
-        fs.writeFile(req.body.filename, req.body.content, function (err) {
+
+        fs.writeFile(`api/files/${req.body.filename}`, req.body.content, function (err) {
             // if (err) return console.log(err);
             console.log('content > filename');
         });
