@@ -3,7 +3,10 @@ const express = require('express')
 const dotenv = require('dotenv')
 const mongoose = require('mongoose')
 
-const UsersSchema = require('./models')
+// const UsersSchema = require('./models/User')
+const authRouter = require('./routes/authRouter')
+// const userRouter = require('./routes/userRouter')
+// const notesRouter = require('./routes/notesRouter')
 
 dotenv.config();
 const app = express()
@@ -12,6 +15,10 @@ const db = mongoose.connection;
 
 app.use(express.json())
 app.use(morgan('combined'))
+
+app.use('/api/auth', authRouter)
+// app.use('/api/users', userRouter)
+// app.use('/api/users', userRouter)
 
 mongoose.connect('mongodb+srv://sasha:sasha@cluster0.msjsx.mongodb.net/practice?retryWrites=true&w=majority', {
     useNewUrlParser: true,
@@ -22,29 +29,29 @@ db.once("open", function () {
     console.log("Connected successfully");
 });
 
-const Users = mongoose.model('Users', UsersSchema);
+// const Users = mongoose.model('Users', UsersSchema);
 
 
-app.post('/api/auth/register', (request, response) => {
-
-    console.log(request.body)
-    const {username, password} = request.body;
-
-    if(!username || !password) {
-        response.status(400).send({message: 'Bad request'})
-        return;
-    }
-
-    try {
-        Users.create({
-            username: `${request.body.username}`,
-            password: `${request.body.password}`
-        }).then(() => response.status(200).send({message: 'Success'}))
-
-    } catch(err) {
-        response.status(500).send({message: 'Internal server error'})
-    }
-})
+// app.post('/api/auth/register', (request, response) => {
+//
+//     console.log(request.body)
+//     const {username, password} = request.body;
+//
+//     if(!username || !password) {
+//         response.status(400).send({message: 'Bad request'})
+//         return;
+//     }
+//
+//     try {
+//         Users.create({
+//             username: `${request.body.username}`,
+//             password: `${request.body.password}`
+//         }).then(() => response.status(200).send({message: 'Success'}))
+//
+//     } catch(err) {
+//         response.status(500).send({message: 'Internal server error'})
+//     }
+// })
 
 
 
