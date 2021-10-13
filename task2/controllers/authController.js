@@ -18,6 +18,7 @@ class authController {
             if(!errors.isEmpty()) {
                 return response.status(400).json({message: 'Bad request'});
             }
+
             const {username, password} = request.body;
 
             const hashedPassword = bcrypt.hashSync(password, 7)
@@ -32,6 +33,11 @@ class authController {
 
     async login(request, response) {
         try {
+            const errors = validationResult(request)
+            if(!errors.isEmpty()) {
+                return response.status(400).json({message: 'Bad request'});
+            }
+
             const {username, password} = request.body
 
             const user = await User.findOne({username})
