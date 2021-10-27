@@ -28,19 +28,27 @@ const checkExtension = (filename) => {
 
 
 //CREATE AND SAVE FILE
-app.post('/api/files', (req, res) => {
+app.post('/api/files', async (req, res) => {
     try {
+        const dir = './api/files';
+
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir, { recursive: true });
+        }
         if (!req.body.filename || !req.body.content) {
-            res.status(400).json({message: "Please specify 'content' parameter"})
+            res.status(400).json({message: "Please specify 'content' parameter1"})
         }
         if (!checkExtension(req.body.filename)) {
-            res.status(400).json({message: "Please specify 'content' parameter"})
+            res.status(400).json({message: "Please specify 'content' parameter2"})
         }
+        // if (typeof req.body.content !== 'string' || typeof req.body.filename !== 'string') {
+        //     res.status(400).json({message: "Please specify 'content' parameter"})
+        // }
         if(fs.existsSync(`api/files/${req.body.filename}`)) {
-            res.status(400).json({message: "Please specify 'content' parameter"})
+            res.status(400).json({message: "Please specify 'content' parameter3"})
         }
 
-        fs.writeFile(`api/files/${req.body.filename}`, req.body.content, function (err) {
+        fs.writeFileSync(`api/files/${req.body.filename}`, req.body.content, function (err) {
             // console.log('content > filename');
             if(err) {
                 res.status(400).json({message: "Please specify 'content' parameter"})
@@ -50,7 +58,7 @@ app.post('/api/files', (req, res) => {
         res.status(200).json({message: "File created successfully"})
     }
     catch (e) {
-        // console.log(`error is ${e}`)
+        console.log(`error is ${e}`)
         res.status(500).json({message: "Server error"});
     }
 })
