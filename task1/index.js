@@ -31,66 +31,116 @@ const checkExtension = (filename) => {
 app.post('/api/files', (req, res) => {
     try {
         if (!req.body.filename || !req.body.content) {
-            throw new Error("Incorrect name of parameters!");
+            res.status(400).json({message: "Please specify 'content' parameter"})
         }
         if (!checkExtension(req.body.filename)) {
-            throw new Error("Incorrect extension!")
+            res.status(400).json({message: "Please specify 'content' parameter"})
         }
         if(fs.existsSync(`api/files/${req.body.filename}`)) {
-            throw new Error("File already exists!:(")
+            res.status(400).json({message: "Please specify 'content' parameter"})
         }
 
         fs.writeFile(`api/files/${req.body.filename}`, req.body.content, function (err) {
             // console.log('content > filename');
             if(err) {
-                throw new Error(`${err}`)
+                res.status(400).json({message: "Please specify 'content' parameter"})
             }
         });
 
-        res.status(200).json('File saved')
+        res.status(200).json({message: "File created successfully"})
     }
     catch (e) {
         // console.log(`error is ${e}`)
-        res.status(400).json(`${e}`);
+        res.status(500).json({message: "Server error"});
     }
 })
 
 //GET LIST OF FILES
 app.get('/api/files', (req, res) => {
     try {
-        // if(req.query.path !== 'api/files' || !req.query.path) {
-        //     throw new Error('Incorrect path to files!')
-        // }
+
         let files = fs.readdirSync('api/files');
 
-        res.status(200).send(files)
+        if(!files) {
+            res.status(400).json({message: "Client error"})
+        }
+
+        res.status(200).send({message: "Success", files: files})
     }
     catch (e) {
-        res.status(400).send(`${e}`);
+        res.status(500).json({message: "Server error"});
     }
 })
 
 
 //SHOW FILE CONTENT
-app.get('/api/file', (request, response) => {
+app.get('/api/files/:filename', (request, response) => {
     try {
-        if(!fs.readdirSync('api/files').includes(request.query.filename)) {
-            throw new Error(`File doesn't exist!`)
+        const {filename} = request.params;
+        if(!fs.readdirSync('api/files').includes(filename)) {
+            response.status(400).json({message: `No file with ${filename} filename found`})
         }
-        if (!request.query.filename) {
-            throw new Error("Incorrect name of parameter!");
+        if (!filename) {
+            response.status(400).json({message: `No file with ${filename} filename found`})
         }
 
-        fs.readFile(`api/files/${request.query.filename}`, 'utf8', function(err, data){
+
+        fs.readFile(`api/files/${filename}`, 'utf8', async function(err, data){
             if(err) {
-                throw new Error('error happened')
+                response.status(400).json({message: `No file with ${filename} filename found`})
             }
+            const uploadedDate = (await fs.promises.stat(`api/files/${filename}`)).mtime;
 
-            response.status(200).send(data)
+            response.status(200).send({
+                message: "Success",
+                filename: filename,
+                content: data,
+                extension: filename.split('.').reverse()[0],
+                uploadedDate: uploadedDate
+            })
         });
     }
     catch(e) {
-        response.status(400).send(`${e}`);
+        response.status(500).json({message: "Server error"});
+    }
+})
+
+//CHANGE FILE CONTENT
+app.put('/api/files/:filename', async (request, response) => {
+    try {
+        const {filename} = request.params;
+        const newContent = request.body.content;
+        if(!fs.readdirSync('api/files').includes(filename)) {
+            response.status(400).json({message: "Please specify 'content' parameter"})
+        }
+        if (!filename) {
+            response.status(400).json({message: "Please specify 'content' parameter"})
+        }
+
+        await fs.promises.writeFile(`api/files/${filename}`, newContent)
+
+        response.status(200).json({message: "File edited successfully"})
+    } catch (e) {
+        response.status(500).json({message: "Server error"});
+    }
+})
+
+
+app.delete('/api/files/:filename', (request, response) => {
+    try {
+        const {filename} = request.params;
+        if(!fs.readdirSync('api/files').includes(filename)) {
+            response.status(400).json({message: `No file with ${filename} filename found`})
+        }
+        if (!filename) {
+            response.status(400).json({message: `No file with ${filename} filename found`})
+        }
+
+        fs.unlinkSync(`api/files/${filename}`)
+
+        response.status(200).json({message: "File deleted successfully"})
+    } catch (e) {
+        response.status(500).json({message: "Server error"});
     }
 })
 
