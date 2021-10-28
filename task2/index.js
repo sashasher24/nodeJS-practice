@@ -6,7 +6,7 @@ const mongoose = require('mongoose')
 // const UsersSchema = require('./models/User')
 const authRouter = require('./routes/authRouter')
 // const userRouter = require('./routes/userRouter')
-// const notesRouter = require('./routes/notesRouter')
+const notesRouter = require('./routes/notesRouter')
 
 dotenv.config();
 const app = express()
@@ -18,7 +18,7 @@ app.use(morgan('combined'))
 
 app.use('/api/auth', authRouter)
 // app.use('/api/users', userRouter)
-// app.use('/api/users', userRouter)
+app.use('/api/notes', notesRouter)
 
 mongoose.connect('mongodb+srv://sasha:sasha@cluster0.msjsx.mongodb.net/practice?retryWrites=true&w=majority', {
     useNewUrlParser: true,

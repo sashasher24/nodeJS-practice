@@ -1,12 +1,13 @@
-const Router = require('express')
-const router = new Router()
+const Router = require('express');
+const router = new Router();
+const authMiddleware = require('../middleware/authMiddleware');
+const noteController = require('../controllers/noteController');
 
-router.get('/api/notes')
-router.post('/api/notes')
+router.get('/', authMiddleware, noteController.getUsersNotes);
+router.post('/', authMiddleware, noteController.addNoteForUser);
+router.get('/:id', authMiddleware, noteController.getUsersNoteById);
+router.put('/:id', authMiddleware, noteController.updateUsersNote);
+router.patch('/:id', authMiddleware, noteController.checkUsersNote);
+router.delete('/:id', authMiddleware, noteController.deleteUsersNote);
 
-router.get('/api/notes/{id}')
-router.put('/api/notes/{id}')
-router.patch('/api/notes/{id}')
-router.delete('/api/notes/{id}')
-
-module.exports = router
+module.exports = router;
