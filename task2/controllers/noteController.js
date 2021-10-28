@@ -26,9 +26,15 @@ class noteController {
       if(req.query.offset) offset = req.query.offset;
       if(req.query.limit) limit = req.query.limit;
 
-      const usersNotesToShow = await Note.find({
+      const notes = await Note.find({
         userId: req.user.id
-      }).slice(offset, offset + limit);
+      }, {
+        __v: 0
+      })
+      const usersNotesToShow = notes.slice(offset, offset + limit);
+
+      if(!usersNotesToShow) res.status(400).json({message: 'Bad request'});
+
 
       // const notesToShow = usersNotes.slice(offset, offset + limit)
       // console.log(usersNotes)
